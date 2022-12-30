@@ -41,6 +41,70 @@ async function run() {
             }
         })
 
+        //Get all Task By Email Id
+        app.get('/addTask', async (req, res) => {
+            let query = {};
+
+
+            try {
+                if (req.query.email) {
+                    query = {
+                        email: req.query.email
+                    }
+                }
+
+                const cursor = New_Task.find(query);
+                const allTask = await cursor.toArray();
+                res.send({
+                    success: true,
+                    message: 'Successfully read all Task',
+                    data: allTask
+                })
+            }
+            catch (error) {
+                console.log(error.message);
+                res.send({
+                    success: false,
+                    error: error.message
+                })
+            }
+
+        })
+
+        //Delete Task
+        app.delete('/addTask/:id', async (req, res) => {
+            const { id } = req.params;
+            try {
+                const task = await New_Task.findOne({ _id: ObjectId(id) })
+
+                //task does not exist
+                if (!task?._id) {
+                    res.send({
+                        success: false,
+                        error: "No task",
+                    });
+                    return;
+                }
+
+                //Task Exist
+                const result = await New_Task.deleteOne({ _id: ObjectId(id) });
+
+                if (result.deletedCount) {
+                    res.send({
+                        success: true,
+                        message: `Successfully deleted the task!`,
+                    });
+                }
+            }
+
+            catch (error) {
+                res.send({
+                    success: false,
+                    error: error.message,
+                });
+            }
+        })
+
     }
 
     finally {
